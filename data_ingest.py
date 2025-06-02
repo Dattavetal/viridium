@@ -1,168 +1,117 @@
 #!/usr/bin/env python3
 """
-ingest.py  –  load EPA PFAS list + ZeroPM alternatives → SQLite + FAISS
+data_ingest.py — Load PFAS list and ZeroPM alternatives → build FAISS indexes + SQLite for CAS lookup
 
-Prerequisites
--------------
-✓ data/pfas_master_list.csv               (exported from EPA PFASSTRUCT)
-✓ data/ZeroPM_Alternative_Assessment_DB_v2.0.xlsx   (original Excel)
-
-Run once:  python ingest.py
+Run once:  python data_ingest.py
 """
 
 from pathlib import Path
-from typing import List
-import sys, json, sqlite3
-
 import pandas as pd
-import faiss, numpy as np
+import faiss
+import numpy as np
+import json
+import sqlite3
+import sys
 from sentence_transformers import SentenceTransformer
 
+# ── Paths ─────────────────────────────────────────────
+DATA_DIR = Path("data")
+PFAS_CSV = DATA_DIR / "pfas_master_list.csv"
+ALT_XLSX = DATA_DIR / "ZeroPM_Alternative_Assessment_DB_v2.0.xlsx"
 
-# ── paths ────────────────────────────────────────────────────────────
-DATA_DIR   = Path(__file__).parent / "data"
-PFAS_CSV   = DATA_DIR / "pfas_master_list.csv"
-ALT_XLSX   = DATA_DIR / "ZeroPM_Alternative_Assessment_DB_v2.0.xlsx"
-# We no longer rely on zeropm_alternatives.csv
-ALTS_CSV   = DATA_DIR / "zeropm_alternatives.csv"
+PFAS_DB     = Path("pfas_lens.db")
+PFAS_INDEX  = Path("pfas_names.faiss")
+ALT_INDEX   = Path("alternatives.faiss")
+PFAS_CORPUS = PFAS_INDEX.with_suffix(".json")
+ALT_CORPUS  = ALT_INDEX.with_suffix(".json")
 
-DB_PATH     = Path("pfas_lens.db")
-INDEX_PATH  = Path("pfas_names.faiss")
-CORPUS_PATH = INDEX_PATH.with_suffix(".json")      # stores list of PFAS names
-
-
-# ── helpers ──────────────────────────────────────────────────────────
-def _exit(msg: str) -> None:
-    print(f"❌  {msg}")
+# ── Helpers ─────────────────────────────────────────────
+def _exit(msg: str):
+    print(f"❌ {msg}")
     sys.exit(1)
 
-
-def check_files() -> None:
+def check_files():
     missing = []
-    if not PFAS_CSV.exists():
-        missing.append(str(PFAS_CSV))
-    if not ALT_XLSX.exists():
-        missing.append(str(ALT_XLSX))
+    if not PFAS_CSV.exists(): missing.append(str(PFAS_CSV))
+    if not ALT_XLSX.exists(): missing.append(str(ALT_XLSX))
     if missing:
         _exit(f"Missing required file(s): {', '.join(missing)}")
 
-
-# ── CSV loaders & column sanity-checks ───────────────────────────────
+# ── PFAS CSV → SQLite + FAISS ─────────────────────────────
 def load_pfas() -> pd.DataFrame:
     df = pd.read_csv(PFAS_CSV)
-
-    # Accept either "NAME" or "PREFERRED NAME"
     if "NAME" in df.columns:
         name_col = "NAME"
     elif "PREFERRED NAME" in df.columns:
         name_col = "PREFERRED NAME"
     else:
-        _exit("PFAS CSV lacks both 'NAME' and 'PREFERRED NAME' columns")
+        _exit("PFAS CSV missing 'NAME' or 'PREFERRED NAME'")
+    if not {"CASRN", name_col}.issubset(df.columns):
+        _exit("PFAS CSV missing required columns")
 
-    required = {"CASRN", name_col}
-    if not required.issubset(df.columns):
-        _exit(f"PFAS CSV lacks columns: {required - set(df.columns)}")
+    return df[["CASRN", name_col]].rename(columns={name_col: "name"})
 
-    # Keep only CASRN + whichever name column, then rename to "NAME"
-    df = df[["CASRN", name_col]].rename(columns={name_col: "NAME"})
-    return df
-
-
-def load_alts() -> pd.DataFrame:
-    """
-    Always read the "Alternatives" sheet from the original Excel.
-    Then rename columns to our internal schema.
-    """
-    # If a stray CSV exists, remove it to avoid confusion
-    if ALTS_CSV.exists():
-        ALTS_CSV.unlink()
-
-    if not ALT_XLSX.exists():
-        _exit(f"Neither {ALTS_CSV} nor {ALT_XLSX} was found!")
-
-    # Read the "Alternatives" sheet in one shot
-    df = pd.read_excel(ALT_XLSX, sheet_name="Alternatives", dtype=str)
-
-    # Lowercase column names for consistent matching
-    df.columns = [c.lower() for c in df.columns]
-
-    # Now map the actual sheet headers to our normalized names
-    rename_map = {
-        "substance name": "alt_name",
-        "use categories": "use_case",
-    }
-    df = df.rename(columns=rename_map)
-
-    required = {"alt_name", "use_case"}
-    if not required.issubset(df.columns):
-        _exit(f"Alternatives sheet lacks columns: {required - set(df.columns)}")
-
-    # We only care about alt_name + use_case here
-    return df[["alt_name", "use_case"]].reset_index(drop=True)
-
-
-# ── SQLite helper ────────────────────────────────────────────────────
-def init_db() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH)
-    conn.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS substance (
-            cas  TEXT PRIMARY KEY,
-            name TEXT
-        );
-        CREATE TABLE IF NOT EXISTS alternative (
-            id        INTEGER PRIMARY KEY,
-            alt_name  TEXT,
-            use_case  TEXT
-        );
-        """
-    )
-    return conn
-
-
-def fill_db(conn: sqlite3.Connection, pfas: pd.DataFrame, alts: pd.DataFrame) -> None:
-    # PFAS: rename columns to ["cas","name"]
-    pfas = pfas.rename(columns={"CASRN": "cas", "NAME": "name"})
-    pfas.to_sql("substance", conn, if_exists="replace", index=False)
-
-    # Alternatives: DataFrame already has columns ["alt_name","use_case"]
-    alts.to_sql("alternative", conn, if_exists="replace", index=False)
-
-
-# ── FAISS index on PFAS names ────────────────────────────────────────
-def build_index(sentences: List[str]) -> None:
+def build_pfas_index(df: pd.DataFrame):
+    corpus = df["name"].tolist()
     model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-
-    # normalize_embeddings=True so IndexFlatIP ≈ cosine similarity
-    emb = model.encode(sentences, show_progress_bar=True, normalize_embeddings=True)
-    emb = emb.astype("float32")
+    emb = model.encode(corpus, normalize_embeddings=True, show_progress_bar=True).astype("float32")
 
     index = faiss.IndexFlatIP(emb.shape[1])
     index.add(emb)
+    faiss.write_index(index, str(PFAS_INDEX))
+    PFAS_CORPUS.write_text(json.dumps(corpus, indent=2))
+    print("✅ Built FAISS index → pfas_names.faiss")
 
-    faiss.write_index(index, str(INDEX_PATH))
-    CORPUS_PATH.write_text(json.dumps(sentences, indent=2))
-    print(f"🔧  FAISS index written → {INDEX_PATH}")
+def store_pfas_sqlite(df: pd.DataFrame):
+    conn = sqlite3.connect(PFAS_DB)
+    conn.executescript("""
+        DROP TABLE IF EXISTS substance;
+        CREATE TABLE substance (
+            cas  TEXT PRIMARY KEY,
+            name TEXT
+        );
+    """)
+    df.rename(columns={"CASRN": "cas"}).to_sql("substance", conn, index=False, if_exists="replace")
+    conn.close()
+    print("✅ Stored CAS + name in SQLite → pfas_lens.db")
 
+# ── Alternatives Excel → FAISS only ─────────────────────
+def load_alternatives() -> pd.DataFrame:
+    df = pd.read_excel(ALT_XLSX, sheet_name="Alternatives", dtype=str)
+    df.columns = [c.lower() for c in df.columns]
+    if not {"substance name", "use categories"}.issubset(df.columns):
+        _exit("ZeroPM Excel missing required columns")
 
-# ── main flow ────────────────────────────────────────────────────────
-def main() -> None:
+    df["full_text"] = df["substance name"] + " (" + df["use categories"] + ")"
+    return df
+
+def build_alt_index(df: pd.DataFrame):
+    corpus = df["full_text"].tolist()
+    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+    emb = model.encode(corpus, normalize_embeddings=True, show_progress_bar=True).astype("float32")
+
+    index = faiss.IndexFlatIP(emb.shape[1])
+    index.add(emb)
+    faiss.write_index(index, str(ALT_INDEX))
+    ALT_CORPUS.write_text(json.dumps(corpus, indent=2))
+    print("✅ Built FAISS index → alternatives.faiss")
+
+# ── Main ────────────────────────────────────────────────
+def main():
     check_files()
 
-    print("🔄  Reading CSV + Excel files …")
+    print("🔄 Loading data...")
     pfas_df = load_pfas()
-    alt_df  = load_alts()
+    alt_df  = load_alternatives()
 
-    print("🗄   Populating SQLite …")
-    with init_db() as conn:
-        fill_db(conn, pfas_df, alt_df)
+    print("📦 Ingesting PFAS...")
+    build_pfas_index(pfas_df)
+    store_pfas_sqlite(pfas_df)
 
-    if not INDEX_PATH.exists():
-        print("⚙️   Building FAISS index …")
-        build_index(pfas_df["NAME"].tolist())
+    print("📦 Ingesting Alternatives...")
+    build_alt_index(alt_df)
 
-    print("✅  Ingestion complete")
-
+    print("✅ All done.")
 
 if __name__ == "__main__":
     main()

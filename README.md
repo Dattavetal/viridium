@@ -1,156 +1,105 @@
-Here’s a comprehensive `README.md` file for your **PFAS BOM Scanner + Bedrock Chatbot** application, covering setup, functionality, and implementation in clear steps:
+Here's your corrected and properly formatted `README.md` in full **Markdown syntax**:
 
 ---
 
-# 🚀 PFAS BOM Scanner + Bedrock Chat Co-Pilot
+```markdown
+# 🔬 PFAS Detection & Alternative Recommendation Assistant
 
-This project is a **Streamlit-based web application** for scanning BOM (Bill of Materials) files and querying PFAS-flagged items using an **AWS Bedrock Claude model**. It allows users to upload a BOM CSV, detect PFAS-flagged parts, and ask natural language questions for part alternatives or details using **Anthropic Claude** via Bedrock.
+This application enables users to upload a Bill of Materials (BOM), detect hazardous PFAS materials, and suggest safer
+alternatives using AI, semantic vector search, and real regulatory data.
 
 ---
 
-## 📂 Project Structure
+## 🧠 Features
 
-```
+- **Upload BOMs (CSV)** and detect PFAS chemicals by CAS number or semantic match
+- **Chat Co-Pilot** answers material-related questions with context-aware LLMs (Claude via AWS Bedrock)
+- **Suggest Alternatives** using a FAISS index built from ZeroPM data
+- **Supports semantic and exact matching**
+- Fully built with: `Flask`, `FAISS`, `Claude`, `SQLite`, and `Streamlit`
+
+---
+
+````
+```text
+## 📦 Project Structure
 .
-├── backend.db                     # SQLite DB storing PFAS part data
-├── streamlit_app.py          # Main Streamlit UI logic
-├── aws_bedrock.py            # Claude API integration with Bedrock
-├── vector_store.py           # FAISS embedding + search functions
-├── sample_bom.csv            # Sample input BOM for testing
-├── requirements.txt          # Python dependencies
-└── README.md                 # This file
-```
+├── data/
+│   ├── pfas\_master\_list.csv
+│   ├── ZeroPM\_Alternative\_Assessment\_DB\_v2.0.xlsx
+│   └── sample_bom
+├── data\_ingest.py
+├── backend.py
+├── streamlit\_app.py
+├── vector\_store.py
+├── aws\_bedrock.py
+├── pfas\_names.faiss
+├── pfas\_names.json
+├── alternatives.faiss
+├── alternatives.json
+├── pfas\_lens.db
+├── requirements.txt
+└── README.md
+
+````
 
 ---
 
-## ⚙️ Features
+## 🚀 Quickstart
 
-✅ Upload and scan BOM for PFAS-flagged parts
-✅ Detect 32 PFAS parts from database
-✅ Ask questions like *“Give me alternatives for P004”*
-✅ Use Claude 3 Haiku via AWS Bedrock for Chat Co-Pilot
-✅ Optionally search similar parts via vector embeddings
-
----
-
-## 🔧 Setup Instructions
-
-### 1. Clone the Repo
-
-```bash
-git clone https://github.com/yourname/pfas-bom-bedrock.git
-cd pfas-bom-bedrock
-```
-
-### 2. Create Virtual Environment
-
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
-
-### 3. Install Dependencies
+### 1. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
+````
+
+### 2. Run the Ingest Script
+
+```bash
+python data_ingest.py
 ```
 
----
+This will:
 
-## 📄 Usage
+* Load PFAS data into SQLite
+* Build FAISS vector indexes for PFAS and safer alternatives
 
-### 1. Start the App
+### 3. Start the Backend
+
+```bash
+python backend.py
+```
+
+### 4. Start the Streamlit UI (optional)
 
 ```bash
 streamlit run streamlit_app.py
 ```
 
-Visit `http://localhost:8501` in your browser.
+---
+
+## 🔍 Sample Query Flow
+
+1. Upload a BOM CSV with part numbers and CAS fields
+2. The app will flag PFAS entries
+3. Ask in chat:
+   *“Suggest alternatives for CAS 61908-07-4”*
+4. You'll receive top-ranked ZeroPM-safe substitutes with use-case info
 
 ---
 
-### 2. Upload a BOM CSV
+## 🧱 Technologies Used
 
-Use the sample BOM file:
-
-```
-PartNumber,Description
-P001,Valve
-P002,Gasket
-...
-P004,PFAS Seal
-...
-```
-
-App will flag any of the 32 PFAS parts.
+* **AWS Bedrock (Claude)** for LLM-based responses
+* **FAISS** for fast, similarity-based material matching
+* **SentenceTransformers (MiniLM-L6-v2)** for embedding text
+* **SQLite** for local CAS-to-name lookup
+* **Streamlit** for the UI
+* **Flask** for API backend
 
 ---
 
-### 3. Ask Chat Co-Pilot
+## 📄 License
 
-Try:
+MIT License — for educational and demonstration purposes only.
 
-* *"Give me alternative to P004"*
-* *"What is the function of P004?"*
-* *"Suggest a safer part than P003"*
-
-The chatbot uses Claude 3 Haiku (via Bedrock) to respond.
-
----
-
-## 🧠 Core Logic
-
-### A. PFAS Detection
-
-The list of 32 flagged part numbers is stored in a SQLite DB (`app.db`) via `sqlmodel`. On upload, the `PartNumber` column is scanned for matches.
-
-### B. Embeddings + Vector Search
-
-Uses `sentence-transformers` + `faiss-cpu` to embed part descriptions and allow semantic search for similar parts.
-
-### C. Claude 3 Haiku via Bedrock
-
-In `aws_bedrock.py`:
-
-```python
-payload = {
-    "anthropic_version": "bedrock-2023-05-31",
-    "messages": [{"role": "user", "content": 'prompt'}],
-    "max_tokens": 600,
-    "temperature": 0.2
-}
-```
-
-This is passed to `client.invoke_model()` with `modelId = "anthropic.claude-3-haiku-20240307-v1:0"`.
-
----
-
-## ✅ Sample Output
-
-> **User**: give me alternative to P004
-> **Bot**: You may consider P005, a generic version of P004 with the same specs but no PFAS components...
-
----
-
-## 🛠 Troubleshooting
-
-* **No module named `faiss`**: Install `faiss-cpu` explicitly.
-* **modelId None error**: Ensure `modelId` is hardcoded and not from missing env vars.
-* **Claude error about roles**: Ensure messages alternate like `user → assistant → user`.
-
----
-
-## 📌 Technologies Used
-
-* **Streamlit** – For frontend UI
-* **FAISS + Sentence Transformers** – For vector similarity search
-* **AWS Bedrock + Anthropic Claude** – For chat-based AI suggestions
-* **SQLite + SQLModel** – Lightweight DB for PFAS tracking
-
----
-
-## 📎 License
-
-©Dattatray Vetal
-
----

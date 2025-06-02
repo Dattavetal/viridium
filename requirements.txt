@@ -8,4 +8,5 @@ botocore
 flask
 streamlit
 openpyxl
-dotenv
+python-dotenv
+flask_cors
