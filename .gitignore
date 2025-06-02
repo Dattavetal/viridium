@@ -1,0 +1,73 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+.venv.bak/
+pip-selfcheck.json
+
+# Streamlit
+.streamlit/config.toml
+.streamlit/secrets.toml
+
+# Streamlit cache
+.streamlit/
+.cache/
+*/.streamlit/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+app.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Environment files
+.env
+.env.*
+
+# Test results
+htmlcov/
+coverage.xml
+*.cover
+*.py,cover
+.cache
+nosetests.xml
+test-results.xml
+
+# MyPy
+.mypy_cache/
+
+# FAISS Index Files
+*.index
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# Others
+*.bak
+*.swp
+*~
+
+# Specific files
+
+pfas_names.faiss
+pfas_names.json
+alternatives.faiss
+alternatives.json
+pfas_lens.db

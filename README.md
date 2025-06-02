@@ -17,6 +17,15 @@ By combining semantic search (FAISS), regulatory datasets (EPA PFASSTRUCT & Zero
 ✅ Streaming text + audio output (optional with Streamlit UI) to simulate a voice-driven materials advisor
 ---
 
+```
+## 🖥️ UI Preview
+
+Here’s a screenshot of the Streamlit-based UI in action:
+
+![UI Screenshot](assets/screenshot1.png)
+![UI Screenshot](assets/screenshot2.png)
+```
+
 ## 🧠 Features
 
 - **Upload BOMs (CSV)** and detect PFAS chemicals by CAS number or semantic match
