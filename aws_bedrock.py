@@ -48,8 +48,6 @@ def chat(prompt: str, history: Optional[List[Dict[str, str]]] = None) -> str:
             prev_role = role
         # if role == prev_role, skip this message (drop consecutive user/user or assistant/assistant)
 
-    # Now filtered is guaranteed to alternate roles
-
     payload = {
         "anthropic_version": "bedrock-2023-05-31",
         "messages": filtered,
