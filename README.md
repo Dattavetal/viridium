@@ -5,9 +5,16 @@ Here's your corrected and properly formatted `README.md` in full **Markdown synt
 ```markdown
 # 🔬 PFAS Detection & Alternative Recommendation Assistant
 
-This application enables users to upload a Bill of Materials (BOM), detect hazardous PFAS materials, and suggest safer
-alternatives using AI, semantic vector search, and real regulatory data.
+This AI-powered assistant is designed to help manufacturers, engineers, and compliance teams identify and eliminate hazardous chemicals—especially PFAS (Per- and Polyfluoroalkyl Substances)—from their product Bill of Materials (BOM).
+By combining semantic search (FAISS), regulatory datasets (EPA PFASSTRUCT & ZeroPM), and LLM-based reasoning (Claude via AWS Bedrock), this system provides:
 
+✅ Automatic detection of PFAS substances in uploaded BOM files, using both CAS number and semantic description matching
+
+✅ AI-driven chat assistant to answer natural language questions about materials, risks, and regulatory implications
+
+✅ Alternative recommendations for high-risk substances, ranked by similarity, use-case, and relevance
+
+✅ Streaming text + audio output (optional with Streamlit UI) to simulate a voice-driven materials advisor
 ---
 
 ## 🧠 Features
