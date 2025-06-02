@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 data_ingest.py — Load PFAS list and ZeroPM alternatives → build FAISS indexes + SQLite for CAS lookup
 

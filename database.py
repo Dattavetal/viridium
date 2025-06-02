@@ -3,17 +3,12 @@ from typing import Optional
 
 from sqlmodel import SQLModel, Field, create_engine
 
-# ---------------------------------------------------------------------------
 # SQLite DB setup
-# ---------------------------------------------------------------------------
 db_url = "sqlite:///pfas_lens.db"
 engine = create_engine(db_url, echo=False)
 
 
-# ---------------------------------------------------------------------------
 # Table Definitions
-# ---------------------------------------------------------------------------
-
 class Substance(SQLModel, table=True):
     cas: str = Field(primary_key=True)
     name: str
@@ -40,8 +35,6 @@ class BomItem(SQLModel, table=True):
     quantity: Optional[int] = 1
 
 
-# ---------------------------------------------------------------------------
 # Create Tables If DB Does Not Exist
-# ---------------------------------------------------------------------------
 if not os.path.exists("pfas_lens.db"):
     SQLModel.metadata.create_all(engine)

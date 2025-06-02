@@ -1,4 +1,3 @@
-# vector_store.py
 import json
 from pathlib import Path
 from typing import List, Tuple

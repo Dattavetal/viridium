@@ -1,4 +1,3 @@
-# verify_db.py
 import sqlite3
 import pandas as pd
 
