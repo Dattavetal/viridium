@@ -1,0 +1,101 @@
+part_number,description,cas,quantity
+P001,Component P001 generic material,,20
+P002,Component P002 generic material,,22
+P003,Component P003 generic material,,41
+P004,Component P004 containing PFAS 61908-07-4,61908-07-4,7
+P005,Component P005 generic material,,11
+P006,Component P006 containing PFAS 61753-99-9,61753-99-9,47
+P007,Component P007 generic material,,43
+P008,Component P008 generic material,,6
+P009,Component P009 generic material,,13
+P010,Component P010 containing PFAS 62623-09-0,62623-09-0,43
+P011,Component P011 containing PFAS 61631-26-3,61631-26-3,30
+P012,Component P012 containing PFAS 62656-67-1,62656-67-1,25
+P013,Component P013 generic material,,19
+P014,Component P014 generic material,,22
+P015,Component P015 containing PFAS 61753-99-9,61753-99-9,18
+P016,Component P016 generic material,,48
+P017,Component P017 generic material,,32
+P018,Component P018 containing PFAS 646063-08-3,646063-08-3,49
+P019,Component P019 generic material,,3
+P020,Component P020 generic material,,50
+P021,Component P021 containing PFAS 61631-26-3,61631-26-3,42
+P022,Component P022 containing PFAS 35443-89-1,35443-89-1,25
+P023,Component P023 generic material,,48
+P024,Component P024 containing PFAS 62623-09-0,62623-09-0,43
+P025,Component P025 generic material,,6
+P026,Component P026 generic material,,25
+P027,Component P027 generic material,,44
+P028,Component P028 generic material,,15
+P029,Component P029 generic material,,31
+P030,Component P030 generic material,,42
+P031,Component P031 generic material,,10
+P032,Component P032 generic material,,39
+P033,Component P033 generic material,,17
+P034,Component P034 generic material,,50
+P035,Component P035 containing PFAS 62656-67-1,62656-67-1,50
+P036,Component P036 generic material,,30
+P037,Component P037 generic material,,7
+P038,Component P038 generic material,,49
+P039,Component P039 generic material,,19
+P040,Component P040 generic material,,37
+P041,Component P041 generic material,,17
+P042,Component P042 containing PFAS 62656-67-1,62656-67-1,8
+P043,Component P043 generic material,,7
+P044,Component P044 generic material,,28
+P045,Component P045 generic material,,50
+P046,Component P046 containing PFAS 63516-34-7,63516-34-7,40
+P047,Component P047 generic material,,25
+P048,Component P048 containing PFAS 61860-09-1,61860-09-1,6
+P049,Component P049 generic material,,31
+P050,Component P050 generic material,,14
+P051,Component P051 generic material,,32
+P052,Component P052 containing PFAS 63176-09-0,63176-09-0,1
+P053,Component P053 generic material,,8
+P054,Component P054 generic material,,37
+P055,Component P055 generic material,,38
+P056,Component P056 generic material,,6
+P057,Component P057 generic material,,12
+P058,Component P058 generic material,,17
+P059,Component P059 containing PFAS 646063-08-3,646063-08-3,36
+P060,Component P060 generic material,,45
+P061,Component P061 generic material,,22
+P062,Component P062 generic material,,33
+P063,Component P063 generic material,,33
+P064,Component P064 generic material,,44
+P065,Component P065 generic material,,12
+P066,Component P066 containing PFAS 61860-09-1,61860-09-1,39
+P067,Component P067 generic material,,15
+P068,Component P068 generic material,,9
+P069,Component P069 generic material,,34
+P070,Component P070 containing PFAS 35443-89-1,35443-89-1,48
+P071,Component P071 containing PFAS 61753-99-9,61753-99-9,16
+P072,Component P072 containing PFAS 62240-24-8,62240-24-8,14
+P073,Component P073 generic material,,22
+P074,Component P074 containing PFAS 61908-07-4,61908-07-4,10
+P075,Component P075 generic material,,50
+P076,Component P076 generic material,,25
+P077,Component P077 generic material,,45
+P078,Component P078 generic material,,37
+P079,Component P079 generic material,,21
+P080,Component P080 containing PFAS 63516-34-7,63516-34-7,7
+P081,Component P081 generic material,,10
+P082,Component P082 generic material,,26
+P083,Component P083 containing PFAS 62656-67-1,62656-67-1,29
+P084,Component P084 generic material,,29
+P085,Component P085 containing PFAS 63516-34-7,63516-34-7,15
+P086,Component P086 containing PFAS 35443-89-1,35443-89-1,48
+P087,Component P087 generic material,,49
+P088,Component P088 generic material,,29
+P089,Component P089 containing PFAS 646063-08-3,646063-08-3,28
+P090,Component P090 generic material,,7
+P091,Component P091 containing PFAS 61860-09-1,61860-09-1,43
+P092,Component P092 containing PFAS 61753-99-9,61753-99-9,24
+P093,Component P093 containing PFAS 646063-08-3,646063-08-3,1
+P094,Component P094 generic material,,15
+P095,Component P095 generic material,,39
+P096,Component P096 generic material,,45
+P097,Component P097 containing PFAS 646063-08-3,646063-08-3,1
+P098,Component P098 containing PFAS 62656-67-1,62656-67-1,21
+P099,Component P099 generic material,,27
+P100,Component P100 containing PFAS 35443-89-1,35443-89-1,31
