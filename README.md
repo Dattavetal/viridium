@@ -70,11 +70,22 @@ This will:
 python backend.py
 ```
 
-### 4. Start the Streamlit UI (optional)
+### 4. Start the Streamlit UI
 
 ```bash
 streamlit run streamlit_app.py
 ```
+### 5. Create .env File for AWS Bedrock Access
+Create a file named .env in the root of the project with the following content:
+
+```bash
+AWS_REGION=your-aws-region
+AWS_ACCESS_KEY_ID=your-access-key-id
+AWS_SECRET_ACCESS_KEY=your-secret-access-key
+BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307
+
+```
+🔐 Note: Never commit your .env file to GitHub. It contains sensitive credentials used to connect to AWS Bedrock and the Claude model.
 
 ---
 
