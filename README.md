@@ -22,8 +22,8 @@ By combining semantic search (FAISS), regulatory datasets (EPA PFASSTRUCT & Zero
 
 Here’s a screenshot of the Streamlit-based UI in action:
 
-<img src="assets/screenshot1.png" alt="UI Screenshot" width="700"/>
-<img src="assets/screenshot2.png" alt="UI Screenshot" width="700"/>
+![UI Screenshot](assets/Screenshot1.png)
+![UI Screenshot](assets/Screenshot2.png)
 ```
 
 ## 🧠 Features
